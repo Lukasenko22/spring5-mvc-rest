@@ -11,10 +11,6 @@ class CategoryMapperTest {
 
     CategoryMapper categoryMapper = CategoryMapper.INSTANCE;
 
-    @BeforeEach
-    void setUp() {
-    }
-
     @Test
     void catgoryToCategoryDTO_mapperTest(){
         //given

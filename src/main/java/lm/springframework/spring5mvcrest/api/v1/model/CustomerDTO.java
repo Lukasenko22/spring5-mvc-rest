@@ -1,16 +1,18 @@
 package lm.springframework.spring5mvcrest.api.v1.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-/**
- * Created by jt on 9/24/17.
- */
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class CategoryDTO {
+public class CustomerDTO {
     private Long id;
-    private String name;
+    private String firstName;
+    private String lastName;
+
+    @JsonProperty("customer_url")
+    private String customerUrl;
 }
