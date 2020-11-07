@@ -7,6 +7,7 @@ import lm.springframework.spring5mvcrest.bootstrap.Bootstrap;
 import lm.springframework.spring5mvcrest.domain.Customer;
 import lm.springframework.spring5mvcrest.repositories.CategoryRepository;
 import lm.springframework.spring5mvcrest.repositories.CustomerRepository;
+import lm.springframework.spring5mvcrest.repositories.VendorRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,12 +28,15 @@ class CustomerServiceImplTestIT {
     @Autowired
     CustomerRepository customerRepository;
 
+    @Autowired
+    VendorRepository vendorRepository;
+
     CustomerService customerService;
 
     @BeforeEach
     void setUp() {
         System.out.println("Loading Bootstrap Data...");
-        Bootstrap bootstrap = new Bootstrap(categoryRepository,customerRepository);
+        Bootstrap bootstrap = new Bootstrap(categoryRepository,customerRepository,vendorRepository);
         bootstrap.run();
 
         customerService = new CustomerServiceImpl(CustomerMapper.INSTANCE,customerRepository);

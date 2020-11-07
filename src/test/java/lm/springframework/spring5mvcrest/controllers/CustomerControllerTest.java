@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import lm.springframework.spring5mvcrest.api.v1.model.CustomerDTO;
+import lm.springframework.spring5mvcrest.controllers.exceptions.handlers.RestResponseEntityExceptionHandler;
 import lm.springframework.spring5mvcrest.domain.Customer;
 import lm.springframework.spring5mvcrest.services.CustomerService;
 import org.junit.jupiter.api.BeforeEach;
@@ -44,7 +45,9 @@ class CustomerControllerTest {
     void setUp() {
         MockitoAnnotations.initMocks(this);
         //customerController = new CustomerController(customerService);
-        mockMvc = MockMvcBuilders.standaloneSetup(customerController).build();
+        mockMvc = MockMvcBuilders.standaloneSetup(customerController)
+                .setControllerAdvice(new RestResponseEntityExceptionHandler())
+                .build();
     }
 
     @Test
@@ -61,7 +64,7 @@ class CustomerControllerTest {
 
         when(customerService.getAllCustomers()).thenReturn(customerDTOList);
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/customers")
+        mockMvc.perform(MockMvcRequestBuilders.get(CustomerController.BASE_URL)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.customerList",hasSize(2)));
@@ -75,7 +78,7 @@ class CustomerControllerTest {
 
         when(customerService.getCustomerById(anyLong())).thenReturn(customerDTO2);
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/customers/"+CUST_ID)
+        mockMvc.perform(MockMvcRequestBuilders.get(getCustomerURLWithId(CUST_ID))
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.firstName",equalTo("Lubomir")));
@@ -88,7 +91,7 @@ class CustomerControllerTest {
         savedCustomer.setId(8L);
         savedCustomer.setFirstName("Lubomir");
         savedCustomer.setLastName("Molcan");
-        savedCustomer.setCustomerUrl("/api/v1/customers/8");
+        savedCustomer.setCustomerUrl(getCustomerURLWithId(8L));
 
         CustomerDTO inputCustomer = new CustomerDTO();
         inputCustomer.setFirstName(savedCustomer.getFirstName());
@@ -103,7 +106,7 @@ class CustomerControllerTest {
         String requestJson = ow.writeValueAsString(inputCustomer);
 
         //then
-        String response = mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/customers")
+        String response = mockMvc.perform(MockMvcRequestBuilders.post(CustomerController.BASE_URL)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(requestJson))
                 .andExpect(status().isCreated())
@@ -121,7 +124,7 @@ class CustomerControllerTest {
         savedCustomer.setId(customerId);
         savedCustomer.setFirstName("Updated Lubomir");
         savedCustomer.setLastName("Molcan");
-        savedCustomer.setCustomerUrl("/api/v1/customers/8");
+        savedCustomer.setCustomerUrl(getCustomerURLWithId(customerId));
 
         CustomerDTO inputCustomer = new CustomerDTO();
         inputCustomer.setFirstName("Updated Lubomir");
@@ -135,7 +138,7 @@ class CustomerControllerTest {
         String requestJson = ow.writeValueAsString(inputCustomer);
 
         //then
-        String response = mockMvc.perform(MockMvcRequestBuilders.put("/api/v1/customers/"+customerId)
+        String response = mockMvc.perform(MockMvcRequestBuilders.put(getCustomerURLWithId(customerId))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(requestJson))
                 .andExpect(status().isOk())
@@ -153,7 +156,7 @@ class CustomerControllerTest {
         savedCustomer.setId(customerId);
         savedCustomer.setFirstName("Updated Lubomir");
         savedCustomer.setLastName("Molcan");
-        savedCustomer.setCustomerUrl("/api/v1/customers/8");
+        savedCustomer.setCustomerUrl(getCustomerURLWithId(customerId));
 
         CustomerDTO inputCustomer = new CustomerDTO();
         inputCustomer.setFirstName("Updated Lubomir");
@@ -167,7 +170,7 @@ class CustomerControllerTest {
         String requestJson = ow.writeValueAsString(inputCustomer);
 
         //then
-        String response = mockMvc.perform(MockMvcRequestBuilders.patch("/api/v1/customers/"+customerId)
+        String response = mockMvc.perform(MockMvcRequestBuilders.patch(getCustomerURLWithId(customerId))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(requestJson))
                 .andExpect(status().isOk())
@@ -175,5 +178,9 @@ class CustomerControllerTest {
                 .andExpect(jsonPath("$.firstName",equalTo("Updated Lubomir")))
                 .andReturn().getResponse().getContentAsString();
         System.out.println("patchCustomer_successTest\nResponse:\n"+response);
+    }
+
+    private String getCustomerURLWithId(Long id){
+        return CustomerController.BASE_URL+"/"+id;
     }
 }

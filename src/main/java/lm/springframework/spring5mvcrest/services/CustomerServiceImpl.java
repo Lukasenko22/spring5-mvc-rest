@@ -2,6 +2,7 @@ package lm.springframework.spring5mvcrest.services;
 
 import lm.springframework.spring5mvcrest.api.v1.mappers.CustomerMapper;
 import lm.springframework.spring5mvcrest.api.v1.model.CustomerDTO;
+import lm.springframework.spring5mvcrest.controllers.exceptions.ResourceNotFoundException;
 import lm.springframework.spring5mvcrest.domain.Customer;
 import lm.springframework.spring5mvcrest.repositories.CustomerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,7 +40,7 @@ public class CustomerServiceImpl implements CustomerService {
     public CustomerDTO getCustomerById(Long customerId) {
         Optional<Customer> customer = customerRepository.findById(customerId);
         if (!customer.isPresent()){
-            throw new RuntimeException("Customer with id="+customerId+" not found");
+            throw new ResourceNotFoundException("Customer with id="+customerId+" not found");
         }
         return customerMapper.customerToCustomerDTO(customer.get());
     }
@@ -61,7 +62,7 @@ public class CustomerServiceImpl implements CustomerService {
     public CustomerDTO patchCustomer(Long customerId, CustomerDTO customerDTO) {
         Optional<Customer> customerOpt = customerRepository.findById(customerId);
         if (!customerOpt.isPresent()){
-            throw new RuntimeException("Customer with id="+customerId+" not found");
+            throw new ResourceNotFoundException("Customer with id="+customerId+" not found");
         }
         Customer customer = customerOpt.get();
         if (customerDTO.getFirstName() != null){
@@ -84,7 +85,7 @@ public class CustomerServiceImpl implements CustomerService {
     public void deleteCustomerById(Long customerId) {
         Optional<Customer> customerOpt = customerRepository.findById(customerId);
         if (!customerOpt.isPresent()){
-            throw new RuntimeException("Customer with id="+customerId+" not found");
+            throw new ResourceNotFoundException("Customer with id="+customerId+" not found");
         }
         customerRepository.deleteById(customerId);
     }
